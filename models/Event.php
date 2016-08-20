@@ -31,6 +31,12 @@ class Event extends Model
   public $title;
 
   /**
+   * The text on an event's element
+   * @var string
+   */
+  public $popcontent;
+
+  /**
    * Whether an event occurs at a specific time-of-day. This property affects whether an event's time is shown. Also, in the agenda views, determines if it is displayed in the "all-day" section.
    * If this value is not explicitly specified, allDayDefault will be used if it is defined.
    * If all else fails, FullCalendar will try to guess. If either the start or end value has a "T" as part of the ISO8601 date string, allDay will become false. Otherwise, it will be true.
