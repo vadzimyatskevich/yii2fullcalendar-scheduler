@@ -19,6 +19,12 @@ class Event extends Model
   public $id;
 
   /**
+   * the id of the shown event
+   * @var string
+   */
+  public $resourceId;
+
+  /**
    * The text on an event's element
    * @var string
    */
@@ -112,7 +118,7 @@ class Event extends Model
   {
     return [
       ['id', 'integer'],
-      ['title, allDay, start, end, url, className, source, color, backgroundColor, borderColor, textColor', 'safe'],
+      ['resourceId, title, allDay, start, end, url, className, source, color, backgroundColor, borderColor, textColor', 'safe'],
       ['editable, startEditable, durationEditable', 'boolean'],
     ];
   }
