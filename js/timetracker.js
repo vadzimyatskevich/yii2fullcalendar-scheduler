@@ -76,25 +76,28 @@ $(document).ready(function() {
             },
             defaultView: 'timelineMonth',
             resourceLabelText: 'Работники',
-            resources: [
-                    { id: 'a', title: 'Кияшко (BY)',eventColor: 'red' },
-                    { id: 'b', title: 'Мишулков (BY)', eventColor: 'orange' },
-                    { id: 'c', title: 'Никитенко (BY)', eventColor: 'yellow' },
-                    { id: 'd', title: 'Яцкевич (BY)', eventColor: 'green' },
-                    { id: 'e', title: 'Rubcov (LT)', eventColor: 'blue' },
-                    { id: 'f', title: 'Narauskas (LT)', eventColor: 'violet' },
-                    { id: 'BY', title: 'заявки BY', /*eventColor: 'LightGreen' */},
-                    { id: 'LT', title: 'заявки LT', eventColor: 'LightPink' },
-                    { id: 'LV', title: 'заявки LV', eventColor: 'LightSalmon' },
-                    { id: 'XX', title: ' ', eventColor: 'black' }
-            ],
+            resources: {
+                url: '/lnt-timetracker/resources',
+                type: 'GET'
+            },
+//            resources: [
+//                    { id: 'a', title: 'Кияшко (BY)',eventColor: 'red' },
+//                    { id: 'b', title: 'Мишулков (BY)', eventColor: 'orange' },
+//                    { id: 'c', title: 'Никитенко (BY)', eventColor: 'yellow' },
+//                    { id: 'd', title: 'Яцкевич (BY)', eventColor: 'green' },
+//                    { id: 'e', title: 'Rubcov (LT)', eventColor: 'blue' },
+//                    { id: 'f', title: 'Narauskas (LT)', eventColor: 'violet' },
+//                    { id: 'BY', title: 'заявки BY', /*eventColor: 'LightGreen' */},
+//                    { id: 'LT', title: 'заявки LT', eventColor: 'LightPink' },
+//                    { id: 'LV', title: 'заявки LV', eventColor: 'LightSalmon' },
+//                    { id: 'XX', title: ' ', eventColor: 'black' }
+//            ],
         eventSources: [
 
             // your event source
             {
 //                url: '/index.php?r=lnt-timetracker/jsoncalendar',
-                url: '/lnt-timetracker/jsoncalendar',
-
+                url: '/lnt-timetracker/orders',
                 type: 'GET',
     //            data: {
     //                custom_param1: 'something',
