@@ -25,73 +25,61 @@ $(document).ready(function() {
 
     $('#calendar').fullCalendar({
 //            now: '2016-05-07',
-            height: 'auto',
-            resourceAreaWidth:'10%',
-            lang: 'ru',
-            buttonText: {
-                year: "Год",
-		month: "Месяц",
-		week: "Неделя",
-		day: "День",
-		list: "Повестка дня"
-            },
-            businessHours: {
-                
-                // days of week. an array of zero-based day of week integers (0=Sunday)
-                dow: [ 1, 2, 3, 4, 5 ], // Monday - Thursday
+        height: 'auto',
+        resourceAreaWidth:'10%',
+        lang: 'ru',
+        buttonText: {
+            year: "Год",
+            month: "Месяц",
+            week: "Неделя",
+            day: "День",
+            list: "Повестка дня"
+        },
+        businessHours: {
 
-                start: '08:00', // a start time (10am in this example)
-                end: '17:00', // an end time (6pm in this example)
-            },
-            editable: true, // enable draggable events
+            // days of week. an array of zero-based day of week integers (0=Sunday)
+            dow: [ 1, 2, 3, 4, 5 ], // Monday - Thursday
+
+            start: '08:00', // a start time (10am in this example)
+            end: '17:00', // an end time (6pm in this example)
+        },
+        editable: true, // enable draggable events
 //            droppable: true,
-            selectable: true,
-            selectHelper: true,
-            select: function(start, end, jsEvent, view, resource  ) {
-                    var title = prompt('Event Title:');
-                    var eventData;
-                    if (title) {
-                            eventData = {
-                                    id: 'event',
-                                    title: title,
-                                    start: start,
-                                    end: end,
-                                    allDay: true,
-                                    resourceId: resource.id,
-                                    editable: true, // enable draggable events
-                                    droppable: true,
-                                    color: getRandomColor(),
-                            };
-                            console.log(eventData);
-                            $('#calendar').fullCalendar('renderEvent', eventData, true); // stick? = true
-                    }
-                    $('#calendar').fullCalendar('unselect');
-            },
-            aspectRatio: 1.8,
-            scrollTime: '00:00', // undo default 6am scrollTime
-            header: {
-                    left: 'today prevYear,prev,next,nextYear',
-                    center: 'title',
-                    right: 'timelineWeek,timelineMonth,timelineYear'
-            },
-            defaultView: 'timelineMonth',
-            resourceLabelText: 'Работники',
-            resources: {
-                url: '/lnt-timetracker/resources',
-                type: 'GET'
-            },
-//            resources: [
-//                    { id: 'a', title: 'Кияшко (BY)',eventColor: 'red' },
-//                    { id: 'b', title: 'Мишулков (BY)', eventColor: 'orange' },
-//                    { id: 'c', title: 'Никитенко (BY)', eventColor: 'yellow' },
-//                    { id: 'd', title: 'Яцкевич (BY)', eventColor: 'green' },
-//                    { id: 'e', title: 'Rubcov (LT)', eventColor: 'blue' },
-//                    { id: 'f', title: 'Narauskas (LT)', eventColor: 'violet' },
-//                    { id: 'BY', title: 'заявки BY', /*eventColor: 'LightGreen' */},
-//                    { id: 'LT', title: 'заявки LT', eventColor: 'LightPink' },
-//                    { id: 'LV', title: 'заявки LV', eventColor: 'LightSalmon' },
-//                    { id: 'XX', title: ' ', eventColor: 'black' }
-//            ],
+        selectable: true,
+        selectHelper: true,
+        select: function(start, end, jsEvent, view, resource  ) {
+                var title = prompt('Event Title:');
+                var eventData;
+                if (title) {
+                        eventData = {
+                                id: 'event',
+                                title: title,
+                                start: start,
+                                end: end,
+                                allDay: true,
+                                resourceId: resource.id,
+                                editable: true, // enable draggable events
+                                droppable: true,
+                                color: getRandomColor(),
+                        };
+                        console.log(eventData);
+                        $('#calendar').fullCalendar('renderEvent', eventData, true); // stick? = true
+                }
+                $('#calendar').fullCalendar('unselect');
+        },
+        aspectRatio: 1.8,
+        scrollTime: '00:00', // undo default 6am scrollTime
+        header: {
+                left: 'today prevYear,prev,next,nextYear',
+                center: 'title',
+                right: 'timelineWeek,timelineMonth,timelineYear'
+        },
+        defaultView: 'timelineMonth',
+        resourceLabelText: 'Работники',
+        resources: {
+            url: '/lnt-timetracker/resources',
+            type: 'GET'
+        },
         eventSources: [
 
             // your event source
