@@ -126,25 +126,6 @@ $(document).ready(function() {
             $this = $(this);
             $this.popover().popover('hide');
         },
-//        eventDragStart: function (event, jsEvent, ui, view) {
-//            if (!copyKey) return;
-//            console.log(event);
-////            var eClone = $.extend(true, {}, event)
-////            eClone.title = 'copy_' + event.title;
-//                var eClone = {
-////                    id : 'copy_' + event.id,
-//                    title: 'copy_' + event.title,
-//                    start: event.start,
-////                    end: event.end,
-//                    resourceId: event.resourceId,
-////                    color: 'gray'
-//                };
-//                
-//            console.log(eClone);
-//            $('#calendar').fullCalendar('renderEvent', eClone, true);
-//            $('#calendar').fullCalendar( 'rerenderEvents' );
-////            $('#calendar').fullCalendar('renderEvent', event, true);
-//        },
         eventDrop: function( event, delta, revertFunc, jsEvent, ui, view ) {
             // Create an event object and copy at least the start date and the title from event
 //             var eventClone = event;
