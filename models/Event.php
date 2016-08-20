@@ -31,7 +31,7 @@ class Event extends Model
   public $title;
 
   /**
-   * The text on an event's element
+   * The text on an event's popup element
    * @var string
    */
   public $popcontent;
