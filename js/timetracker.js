@@ -47,26 +47,26 @@ $(document).ready(function() {
 //            droppable: true,
             selectable: true,
             selectHelper: true,
-//            select: function(start, end, jsEvent, view, resource  ) {
-//                    var title = prompt('Event Title:');
-//                    var eventData;
-//                    if (title) {
-//                            
-//                            eventData = {
-//                                    title: title,
-//                                    start: start,
-//                                    end: end,
-//                                    allDay: true,
-//                                    resourceId: resource.id,
-//                                    editable: true, // enable draggable events
-//                                    droppable: true,
-//                                    color: getRandomColor(),
-//                            };
-//                            console.log(eventData);
-//                            $('#calendar').fullCalendar('renderEvent', eventData, true); // stick? = true
-//                    }
-//                    $('#calendar').fullCalendar('unselect');
-//            },
+            select: function(start, end, jsEvent, view, resource  ) {
+                    var title = prompt('Event Title:');
+                    var eventData;
+                    if (title) {
+                            
+                            eventData = {
+                                    title: title,
+                                    start: start,
+                                    end: end,
+                                    allDay: true,
+                                    resourceId: resource.id,
+                                    editable: true, // enable draggable events
+                                    droppable: true,
+                                    color: getRandomColor(),
+                            };
+                            console.log(eventData);
+                            $('#calendar').fullCalendar('renderEvent', eventData, true); // stick? = true
+                    }
+                    $('#calendar').fullCalendar('unselect');
+            },
             aspectRatio: 1.8,
             scrollTime: '00:00', // undo default 6am scrollTime
             header: {
