@@ -51,8 +51,8 @@ $(document).ready(function() {
                     var title = prompt('Event Title:');
                     var eventData;
                     if (title) {
-                            
                             eventData = {
+                                    id: 'event',
                                     title: title,
                                     start: start,
                                     end: end,
