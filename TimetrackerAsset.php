@@ -1,14 +1,14 @@
 <?php
-
+/**
+ * 
+ */
 namespace yii2fullcalendarscheduler;
 
 use yii\web\AssetBundle;
 
 /**
- * @link 
- * @author Vadzim Yatskevich
+ * 
  */
-
 class TimetrackerAsset extends AssetBundle
 {
     /**
