@@ -41,7 +41,9 @@ class FullcalendarTest extends \Codeception\TestCase\Test
         $this->instance = null;
     }
 
-    // tests
+    /**
+     * 
+     */
     public function testMe()
     {
 
