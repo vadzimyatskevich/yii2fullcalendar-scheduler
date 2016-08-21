@@ -75,7 +75,8 @@ $(document).ready(function() {
                 right: 'timelineWeek,timelineMonth,timelineYear'
         },
         defaultView: 'timelineMonth',
-        resourceLabelText: 'Работники',
+//        resourceLabelText: 'Работники',
+        resourceGroupField: 'region',
         resources: {
             url: '/lnt-timetracker/resources',
             type: 'GET'
