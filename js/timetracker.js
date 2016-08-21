@@ -4,15 +4,16 @@
  * and open the template in the editor.
  */
 
-/* http://stackoverflow.com/questions/1484506/random-color-generator-in-javascript */
-function getRandomColor() {
-    var letters = '0123456789ABCDEF';
-    var color = '#';
-    for (var i = 0; i < 6; i++ ) {
-        color += letters[Math.floor(Math.random() * 16)];
+/* http://stackoverflow.com/questions/9600295/automatically-change-text-color-to-assure-readability */
+    function randomColor() {
+        var color;
+        color = Math.floor(Math.random() * 0x1000000); // integer between 0x0 and 0xFFFFFF
+        color = color.toString(16); // convert to hex
+        color = ("000000" + color).slice(-6); // pad with leading zeros
+        color = "#" + color; // prepend #
+        return color;
     }
-    return color;
-};
+    
 
 var copyKey = false;
 $(document).keydown(function (e) {
@@ -48,20 +49,50 @@ $(document).ready(function() {
         selectable: true,
         selectHelper: true,
         select: function(start, end, jsEvent, view, resource  ) {
-                var title = prompt('Event Title:');
+            console.log(start);
+            console.log(end);
+                var popcontent = prompt('Event Title:');
                 var eventData;
-                if (title) {
+                if (popcontent) {
+                    ecolor = randomColor();
                         eventData = {
                                 id: 'event',
-                                title: title,
+                                title: popcontent,
+                                popcontent: popcontent,
                                 start: start,
                                 end: end,
                                 allDay: true,
                                 resourceId: resource.id,
                                 editable: true, // enable draggable events
                                 droppable: true,
-                                color: getRandomColor(),
+                                color: ecolor,
                         };
+            // Create an event object and copy at least the start date and the title from event
+                    $.ajax({
+                        url: '/lnt-timetracker/event-drop',
+                        type: 'get',
+                        data: {
+                            id : null,
+                            orderId: null,
+                            resourceId: resource.id,
+                            start: start._d,
+                            end: end._d,
+                            delta: 0,
+                            allDay: true,
+                            title: popcontent,
+                            popcontent: popcontent,
+                            color: ecolor,
+                        },
+                        success: function ( data, textStatus, jqXHR ) {
+                            console.log(data);
+                        },
+                        error:function ( jqXHR, textStatus, errorThrown ) {
+                            console.log('jqXHR: '+ jqXHR);
+                            console.log('textStatus: '+ textStatus);
+                            console.log('errorThrown: '+ errorThrown);
+                        }
+                    });
+
                         console.log(eventData);
                         $('#calendar').fullCalendar('renderEvent', eventData, true); // stick? = true
                 }
@@ -88,15 +119,17 @@ $(document).ready(function() {
 //                url: '/index.php?r=lnt-timetracker/jsoncalendar',
                 url: '/lnt-timetracker/orders',
                 type: 'GET',
-    //            data: {
-    //                custom_param1: 'something',
-    //                custom_param2: 'somethingelse'
-    //            },
                 error: function( jqXHR, textStatus, errorThrown) {
                     alert(jqXHR+textStatus+errorThrown);
                 },
-                color: 'yellow',   // a non-ajax option
-                textColor: 'black' // a non-ajax option
+            },
+            {
+//                url: '/index.php?r=lnt-timetracker/jsoncalendar',
+                url: '/lnt-timetracker/events',
+                type: 'GET',
+                error: function( jqXHR, textStatus, errorThrown) {
+                    alert(jqXHR+textStatus+errorThrown);
+                },
             }
 
             // any other sources...
@@ -104,6 +137,32 @@ $(document).ready(function() {
         ],
         eventClick: function(event, jsEvent, view) {
            console.log(event);
+            // planned event drop (marked with "event" in id field)
+            if (event.id.search('event') !== -1 ){
+                var mesg = prompt('Удалить?', 'да');
+                if (mesg === 'да'){
+                    $.ajax({
+                        url: '/lnt-timetracker/event-delete',
+                        type: 'get',
+                        data: {
+                            id : event.id,
+                        },
+                        success: function ( data, textStatus, jqXHR ) {
+                            console.log(data);
+                            if (data === 'ok') {
+                                $('#calendar').fullCalendar( 'removeEvents' , event.id );
+                            }
+                        },
+                        error:function ( jqXHR, textStatus, errorThrown ) {
+                            console.log('jqXHR: '+ jqXHR);
+                            console.log('textStatus: '+ textStatus);
+                            console.log('errorThrown: '+ errorThrown);
+                        }
+                    });
+                }
+
+                return;
+            }
         },
     //    eventRender: function (event, element) {
     //        element.popover({
@@ -117,41 +176,73 @@ $(document).ready(function() {
             $this.popover({ html:true,
                             title:event.title, 
                             content:event.popcontent,
-                            placement:'auto top',
+                            placement:'top',
                             container: 'body',
-                            trigger:'hover'
+                            trigger:'manual'
                                 }).popover('show');
-            return false;  
+//            setTimeout(function() {$this.popover('hide');},3000);
         },
         eventMouseout: function(calEvent, jsEvent) {
             $this = $(this);
             $this.popover().popover('hide');
         },
         eventDrop: function( event, delta, revertFunc, jsEvent, ui, view ) {
-            // Create an event object and copy at least the start date and the title from event
-//             var eventClone = event;
-            if (event.id.search('event') !== -1 ){
-                return;
-            }
+            console.log(event);
+            console.log(delta);
+            console.log(view);
+            
+            // revert event droped on region row
             if (event.resourceId ==='BY' || event.resourceId ==='LT' || event.resourceId ==='LV'){
                 revertFunc();
                 return;
             }
-                
+            // planned event drop (marked with "event" in id field)
+            if (event.id.search('event') !== -1 ){
+                return;
+            }
+            // random event color
+            var ecolor = randomColor();
+            // Create an event object and copy at least the start date and the title from event
+            $.ajax({
+                url: '/lnt-timetracker/event-drop',
+                type: 'get',
+                data: {
+                    id : event.id,
+                    orderId: event.id,
+                    resourceId: event.resourceId,
+                    start: event.start._i,
+                    end: event.end._i,
+                    delta: delta._days,
+                    allDay: event.allDay,
+                    title: event.title,
+                    popcontent: event.popcontent,
+                    color: ecolor,
+                },
+                success: function ( data, textStatus, jqXHR ) {
+                    console.log(data);
+                },
+                error:function ( jqXHR, textStatus, errorThrown ) {
+                    console.log('jqXHR: '+ jqXHR);
+                    console.log('textStatus: '+ textStatus);
+                    console.log('errorThrown: '+ errorThrown);
+                }
+            });
+
                 var eventClone = {
                     id : 'event_' + event.id,
-                    title: 'Выезд ' + event.title,
+                    title: '' + event.title,
                     popcontent: event.popcontent,
                     start: event.start,
                     end: event.end,
                     resourceId: event.resourceId,
-                    color: getRandomColor(),
+                    color: ecolor,
+                    textColor: 'black'
                 };
              // Render new event with new event object
              $('#calendar').fullCalendar('renderEvent', eventClone, true);
 
              // Revert the changes in parent event. To move it back to original position
-             event.color = 'LightGreen'
+             event.color = 'LightGray'
              revertFunc();
         }
     });
