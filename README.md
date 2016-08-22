@@ -12,14 +12,8 @@ Yii2 Extension by <philipp@frenzel.net>
 A tiny sample can be found here:
 http://yii2fullcalendar.beeye.org
 
-[![Latest Stable Version](https://poser.pugx.org/philippfrenzel/yii2fullcalendar-scheduler/v/stable.svg)](https://packagist.org/packages/philippfrenzel/yii2fullcalendarscheduler)
-[![Build Status](https://travis-ci.org/philippfrenzel/yii2fullcalendar-scheduler.svg?branch=master)](https://travis-ci.org/philippfrenzel/yii2fullcalendar-scheduler)
-[![Code Climate](https://codeclimate.com/github/philippfrenzel/yii2fullcalendar-scheduler.png)](https://codeclimate.com/github/philippfrenzel/yii2fullcalendar-scheduler)
-[![Version Eye](https://www.versioneye.com/php/philippfrenzel:yii2fullcalendarscheduler/badge.svg)](https://www.versioneye.com/php/philippfrenzel:yii2fullcalendarscheduler)
-[![License](https://poser.pugx.org/philippfrenzel/yii2fullcalendarscheduler/license.svg)](https://packagist.org/packages/philippfrenzel/yii2fullcalendar-scheduler)
-
 customized philippfrenzel/yii2fullcalendar-scheduler extension
-
+original version - https://github.com/philippfrenzel/yii2fullcalendar-scheduler
 
 Installation
 ============
