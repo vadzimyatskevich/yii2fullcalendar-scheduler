@@ -5,8 +5,8 @@ JQuery from: http://arshaw.com/fullcalendar/
 Version 2.1.1
 License pls. check http://fullcalendar.io/scheduler/download/
 
-Customized philippfrenzel/yii2fullcalendar-scheduler extension
-original version - https://github.com/philippfrenzel/yii2fullcalendar-scheduler
+Customized philippfrenzel/yii2fullcalendar-scheduler extension.
+Original version - https://github.com/philippfrenzel/yii2fullcalendar-scheduler
 
 Installation
 ============
