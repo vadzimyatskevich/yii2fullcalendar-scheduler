@@ -14,7 +14,7 @@
         return color;
     }
     
-
+/* keypress register */
 var copyKey = false;
 $(document).keydown(function (e) {
     copyKey = e.shiftKey;
@@ -29,6 +29,7 @@ $(document).ready(function() {
         height: 'auto',
         resourceAreaWidth:'10%',
         lang: 'ru',
+        timezone: 'UTC',
         buttonText: {
             year: "Год",
             month: "Месяц",
@@ -49,8 +50,8 @@ $(document).ready(function() {
         selectable: true,
         selectHelper: true,
         select: function(start, end, jsEvent, view, resource  ) {
-            console.log(start);
-            console.log(end);
+            console.log(start.format("YYYY-MM-DD HH:mm:ss"));
+            console.log(end.format("YYYY-MM-DD HH:mm:ss"));
                 var popcontent = prompt('Event Title:');
                 var eventData;
                 if (popcontent) {
@@ -69,14 +70,15 @@ $(document).ready(function() {
                         };
             // Create an event object and copy at least the start date and the title from event
                     $.ajax({
+//                        url: '/index.php?r=lnt-timetracker/event-drop',
                         url: '/lnt-timetracker/event-drop',
                         type: 'get',
                         data: {
                             id : null,
                             orderId: null,
                             resourceId: resource.id,
-                            start: start._d,
-                            end: end._d,
+                            start: start.format("YYYY-MM-DD HH:mm:ss"),
+                            end: end.format("YYYY-MM-DD HH:mm:ss"),
                             delta: 0,
                             allDay: true,
                             title: popcontent,
@@ -85,6 +87,8 @@ $(document).ready(function() {
                         },
                         success: function ( data, textStatus, jqXHR ) {
                             console.log(data);
+                            eventData.id = 'event_' + data.id;
+                            $('#calendar').fullCalendar('renderEvent', eventData, true); // stick? = true
                         },
                         error:function ( jqXHR, textStatus, errorThrown ) {
                             console.log('jqXHR: '+ jqXHR);
@@ -93,8 +97,7 @@ $(document).ready(function() {
                         }
                     });
 
-                        console.log(eventData);
-                        $('#calendar').fullCalendar('renderEvent', eventData, true); // stick? = true
+
                 }
                 $('#calendar').fullCalendar('unselect');
         },
@@ -109,6 +112,7 @@ $(document).ready(function() {
 //        resourceLabelText: 'Работники',
         resourceGroupField: 'region',
         resources: {
+//            url: '/index.php?r=lnt-timetracker/resources',
             url: '/lnt-timetracker/resources',
             type: 'GET'
         },
@@ -116,20 +120,20 @@ $(document).ready(function() {
 
             // your event source
             {
-//                url: '/index.php?r=lnt-timetracker/jsoncalendar',
+//                url: '/index.php?r=lnt-timetracker/orders',
                 url: '/lnt-timetracker/orders',
                 type: 'GET',
                 error: function( jqXHR, textStatus, errorThrown) {
                     alert(jqXHR+textStatus+errorThrown);
-                },
+                }
             },
             {
-//                url: '/index.php?r=lnt-timetracker/jsoncalendar',
+//                url: '/index.php?r=lnt-timetracker/events',
                 url: '/lnt-timetracker/events',
                 type: 'GET',
                 error: function( jqXHR, textStatus, errorThrown) {
                     alert(jqXHR+textStatus+errorThrown);
-                },
+                }
             }
 
             // any other sources...
@@ -142,6 +146,7 @@ $(document).ready(function() {
                 var mesg = prompt('Удалить?', 'да');
                 if (mesg === 'да'){
                     $.ajax({
+//                        url: '/index.php?r=lnt-timetracker/event-delete',
                         url: '/lnt-timetracker/event-delete',
                         type: 'get',
                         data: {
@@ -164,13 +169,38 @@ $(document).ready(function() {
                 return;
             }
         },
-    //    eventRender: function (event, element) {
-    //        element.popover({
-    //            title: event.name,
-    //            placement: 'right',
-    //            content: + '<br />Start: ' + event.starts_at + '<br />End: ' + event.ends_at + '<br />Description: ' + event.description,
-    //        });
-    //    },
+        eventResize: function(event, delta, revertFunc) {
+            console.log('eventResize');
+            console.log(event.id);
+            console.log('start: ' + event.start.format("YYYY-MM-DD HH:mm:ss"));
+            console.log('end: ' + event.end.format("YYYY-MM-DD HH:mm:ss"));
+            $.ajax({
+//                        url: '/index.php?r=lnt-timetracker/event-resize-move',
+                url: '/lnt-timetracker/event-resize-move',
+                type: 'get',
+                data: {
+                    eventId : event.id,
+                    start: event.start.format("YYYY-MM-DD HH:mm:ss"),
+                    end: event.end.format("YYYY-MM-DD HH:mm:ss"),
+                    resourceId: event.resourceId
+//                    delta: delta,
+                },
+                success: function ( data, textStatus, jqXHR ) {
+                     console.log('success');
+                     console.log(data);
+//                     revertFunc();
+                },
+                error:function ( jqXHR, textStatus, errorThrown ) {
+                    console.log('error');
+                    revertFunc();
+                }
+            });
+//            alert(event.title + " end is now " + event.end.format());
+//
+//            if (!confirm("is this okay?")) {
+//                revertFunc();
+//            }
+        },
         eventMouseover: function(event, element) {
             $this = $(this);
             $this.popover({ html:true,
@@ -190,7 +220,7 @@ $(document).ready(function() {
             console.log(event);
             console.log(delta);
             console.log(view);
-            
+
             // revert event droped on region row
             if (event.resourceId ==='BY' || event.resourceId ==='LT' || event.resourceId ==='LV'){
                 revertFunc();
@@ -198,20 +228,42 @@ $(document).ready(function() {
             }
             // planned event drop (marked with "event" in id field)
             if (event.id.search('event') !== -1 ){
+                $.ajax({
+    //                        url: '/index.php?r=lnt-timetracker/event-resize-move',
+                    url: '/lnt-timetracker/event-resize-move',
+                    type: 'get',
+                    data: {
+                        eventId : event.id,
+                        start: event.start.format("YYYY-MM-DD HH:mm:ss"),
+                        end: event.end.format("YYYY-MM-DD HH:mm:ss"),
+                        resourceId: event.resourceId
+    //                    delta: delta,
+                    },
+                    success: function ( data, textStatus, jqXHR ) {
+                         console.log('success');
+                         console.log(data);
+    //                     revertFunc();
+                    },
+                    error:function ( jqXHR, textStatus, errorThrown ) {
+                        console.log('error');
+                        revertFunc();
+                    }
+                });
                 return;
             }
             // random event color
             var ecolor = randomColor();
             // Create an event object and copy at least the start date and the title from event
             $.ajax({
+//                url: '/index.php?r=lnt-timetracker/event-drop',
                 url: '/lnt-timetracker/event-drop',
                 type: 'get',
                 data: {
                     id : event.id,
                     orderId: event.id,
                     resourceId: event.resourceId,
-                    start: event.start._i,
-                    end: event.end._i,
+                    start: event.start.format("YYYY-MM-DD HH:mm:ss"),
+                    end: event.end.format("YYYY-MM-DD HH:mm:ss"),
                     delta: delta._days,
                     allDay: event.allDay,
                     title: event.title,
