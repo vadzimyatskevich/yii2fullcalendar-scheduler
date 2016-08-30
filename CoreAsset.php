@@ -71,7 +71,7 @@ class CoreAsset extends AssetBundle
     public function registerAssetFiles($view)
     {
         $language = $this->language ? $this->language : Yii::$app->language;
-        if ($language != 'en-us') 
+        if ($language != 'en-US') 
         {
             $this->js[] = "fullcalendar/dist/lang/{$language}.js";
         }
