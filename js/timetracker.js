@@ -6,37 +6,59 @@
 
 /* http://stackoverflow.com/questions/9600295/automatically-change-text-color-to-assure-readability */
     function randomColor() {
-        var color;
-        color = Math.floor(Math.random() * 0x1000000); // integer between 0x0 and 0xFFFFFF
-        color = color.toString(16); // convert to hex
-        color = ("000000" + color).slice(-6); // pad with leading zeros
-        color = "#" + color; // prepend #
-        return color;
+//        var color;
+//        color = Math.floor(Math.random() * 0x1000000); // integer between 0x0 and 0xFFFFFF
+//        color = color.toString(16); // convert to hex
+//        color = ("000000" + color).slice(-6); // pad with leading zeros
+//        color = "#" + color; // prepend #
+//        return color;
+        return '#A9F5BC';
     }
     
-/* keypress register */
-var copyKey = false;
-$(document).keydown(function (e) {
-    copyKey = e.shiftKey;
-}).keyup(function () {
-    copyKey = false;
-});
-
 $(document).ready(function() {
 
     $('#calendar').fullCalendar({
-//            now: '2016-05-07',
         height: 'auto',
         resourceAreaWidth:'10%',
-        lang: 'ru',
-        timezone: 'UTC',
-        buttonText: {
-            year: "Год",
-            month: "Месяц",
-            week: "Неделя",
-            day: "День",
-            list: "Повестка дня"
+        weekNumbers: true,
+        weekNumberCalculation: "ISO",
+        scrollTime: '00:00', // undo default 6am scrollTime
+        nowIndicator: true,
+        customButtons: {
+        allcountryButton: {
+            text: 'Все страны',
+            click: function() {
+//              
+document.cookie = "allc=1";
+
+location.reload();
+          }
         },
+        foreigncountryButton: {
+            text: 'моя страна',
+            click: function() {
+//              
+document.cookie = "allc=0";
+
+location.reload();
+          }
+        },
+    },
+        header: {
+                left: 'today prevYear,prev,next,nextYear allcountryButton,foreigncountryButton',
+                center: 'title',
+                right: 'timelineDays,timelineMonth,timelineYear'
+        },
+        views: {
+            timelineDays: {
+                type: 'timeline',
+                duration: { days: 14 },
+                slotLabelInterval: { days:1 }
+            },
+        },
+        defaultView: 'timelineMonth',
+        resourceLabelText: 'Техники',
+        resourceGroupField: 'region',
         businessHours: {
 
             // days of week. an array of zero-based day of week integers (0=Sunday)
@@ -50,28 +72,19 @@ $(document).ready(function() {
         selectable: true,
         selectHelper: true,
         select: function(start, end, jsEvent, view, resource  ) {
-            console.log(start.format("YYYY-MM-DD HH:mm:ss"));
-            console.log(end.format("YYYY-MM-DD HH:mm:ss"));
+            
+            // select on resource not allowed
+            if (resource.id ==='BY' ||resource.id ==='LT' || resource.id ==='LV'){
+                return;
+            }
                 var popcontent = prompt('Event Title:');
                 var eventData;
                 if (popcontent) {
                     ecolor = randomColor();
-                        eventData = {
-                                id: 'event',
-                                title: popcontent,
-                                popcontent: popcontent,
-                                start: start,
-                                end: end,
-                                allDay: true,
-                                resourceId: resource.id,
-                                editable: true, // enable draggable events
-                                droppable: true,
-                                color: ecolor,
-                        };
-            // Create an event object and copy at least the start date and the title from event
+                    // Create an event object and copy at least the start date and the title from event
                     $.ajax({
-//                        url: '/index.php?r=lnt-timetracker/event-drop',
-                        url: '/lnt-timetracker/event-drop',
+                        url: '/lnt-timetracker/event-select',
+//                        url: '/lnt-timetracker/event-drop',
                         type: 'get',
                         data: {
                             id : null,
@@ -86,14 +99,9 @@ $(document).ready(function() {
                             color: ecolor,
                         },
                         success: function ( data, textStatus, jqXHR ) {
-                            console.log(data);
-                            eventData.id = 'event_' + data.id;
-                            $('#calendar').fullCalendar('renderEvent', eventData, true); // stick? = true
+                            $('#calendar').fullCalendar( 'refetchEvents' ); //
                         },
                         error:function ( jqXHR, textStatus, errorThrown ) {
-                            console.log('jqXHR: '+ jqXHR);
-                            console.log('textStatus: '+ textStatus);
-                            console.log('errorThrown: '+ errorThrown);
                         }
                     });
 
@@ -101,35 +109,26 @@ $(document).ready(function() {
                 }
                 $('#calendar').fullCalendar('unselect');
         },
-        aspectRatio: 1.8,
-        scrollTime: '00:00', // undo default 6am scrollTime
-        header: {
-                left: 'today prevYear,prev,next,nextYear',
-                center: 'title',
-                right: 'timelineWeek,timelineMonth,timelineYear'
-        },
-        defaultView: 'timelineMonth',
-//        resourceLabelText: 'Работники',
-        resourceGroupField: 'region',
         resources: {
-//            url: '/index.php?r=lnt-timetracker/resources',
             url: '/lnt-timetracker/resources',
-            type: 'GET'
+//            url: '/lnt-timetracker/resources',
+            type: 'GET',
+            async: false,
         },
         eventSources: [
 
             // your event source
             {
-//                url: '/index.php?r=lnt-timetracker/orders',
                 url: '/lnt-timetracker/orders',
+//                url: '/lnt-timetracker/orders',
                 type: 'GET',
                 error: function( jqXHR, textStatus, errorThrown) {
                     alert(jqXHR+textStatus+errorThrown);
                 }
             },
             {
-//                url: '/index.php?r=lnt-timetracker/events',
                 url: '/lnt-timetracker/events',
+//                url: '/lnt-timetracker/events',
                 type: 'GET',
                 error: function( jqXHR, textStatus, errorThrown) {
                     alert(jqXHR+textStatus+errorThrown);
@@ -139,44 +138,22 @@ $(document).ready(function() {
             // any other sources...
 
         ],
+        resourceRender: function(resourceObj, labelTds, bodyTds) {
+        },
         eventClick: function(event, jsEvent, view) {
-           console.log(event);
-            // planned event drop (marked with "event" in id field)
-            if (event.id.search('event') !== -1 ){
-                var mesg = prompt('Удалить?', 'да');
-                if (mesg === 'да'){
-                    $.ajax({
-//                        url: '/index.php?r=lnt-timetracker/event-delete',
-                        url: '/lnt-timetracker/event-delete',
-                        type: 'get',
-                        data: {
-                            id : event.id,
-                        },
-                        success: function ( data, textStatus, jqXHR ) {
-                            console.log(data);
-                            if (data === 'ok') {
-                                $('#calendar').fullCalendar( 'removeEvents' , event.id );
-                            }
-                        },
-                        error:function ( jqXHR, textStatus, errorThrown ) {
-                            console.log('jqXHR: '+ jqXHR);
-                            console.log('textStatus: '+ textStatus);
-                            console.log('errorThrown: '+ errorThrown);
-                        }
+            $( '.modal-content' ).load( '/lnt-timetracker/event-click', {id: event.id},function( response, status, xhr ) {
+                if (status == 'success') {
+                    $('#timetrackerModal').modal('show').draggable({
+                        handle: ".modal-header"
                     });
                 }
-
-                return;
-            }
+            });
+            return;
         },
         eventResize: function(event, delta, revertFunc) {
-            console.log('eventResize');
-            console.log(event.id);
-            console.log('start: ' + event.start.format("YYYY-MM-DD HH:mm:ss"));
-            console.log('end: ' + event.end.format("YYYY-MM-DD HH:mm:ss"));
             $.ajax({
-//                        url: '/index.php?r=lnt-timetracker/event-resize-move',
-                url: '/lnt-timetracker/event-resize-move',
+                url: '/lnt-timetracker/event-drop-resize',
+//                url: '/lnt-timetracker/event-resize-move',
                 type: 'get',
                 data: {
                     eventId : event.id,
@@ -186,20 +163,11 @@ $(document).ready(function() {
 //                    delta: delta,
                 },
                 success: function ( data, textStatus, jqXHR ) {
-                     console.log('success');
-                     console.log(data);
-//                     revertFunc();
                 },
                 error:function ( jqXHR, textStatus, errorThrown ) {
-                    console.log('error');
                     revertFunc();
                 }
             });
-//            alert(event.title + " end is now " + event.end.format());
-//
-//            if (!confirm("is this okay?")) {
-//                revertFunc();
-//            }
         },
         eventMouseover: function(event, element) {
             $this = $(this);
@@ -217,35 +185,26 @@ $(document).ready(function() {
             $this.popover().popover('hide');
         },
         eventDrop: function( event, delta, revertFunc, jsEvent, ui, view ) {
-            console.log(event);
-            console.log(delta);
-            console.log(view);
-
             // revert event droped on region row
-            if (event.resourceId ==='BY' || event.resourceId ==='LT' || event.resourceId ==='LV'){
+            if (event.resourceId ==='bel' || event.resourceId ==='balt'){
                 revertFunc();
                 return;
             }
             // planned event drop (marked with "event" in id field)
             if (event.id.search('event') !== -1 ){
                 $.ajax({
-    //                        url: '/index.php?r=lnt-timetracker/event-resize-move',
-                    url: '/lnt-timetracker/event-resize-move',
+                    url: '/lnt-timetracker/event-drop-resize',
+//                    url: '/lnt-timetracker/event-resize-move',
                     type: 'get',
                     data: {
                         eventId : event.id,
                         start: event.start.format("YYYY-MM-DD HH:mm:ss"),
                         end: event.end.format("YYYY-MM-DD HH:mm:ss"),
                         resourceId: event.resourceId
-    //                    delta: delta,
                     },
                     success: function ( data, textStatus, jqXHR ) {
-                         console.log('success');
-                         console.log(data);
-    //                     revertFunc();
                     },
                     error:function ( jqXHR, textStatus, errorThrown ) {
-                        console.log('error');
                         revertFunc();
                     }
                 });
@@ -255,8 +214,8 @@ $(document).ready(function() {
             var ecolor = randomColor();
             // Create an event object and copy at least the start date and the title from event
             $.ajax({
-//                url: '/index.php?r=lnt-timetracker/event-drop',
-                url: '/lnt-timetracker/event-drop',
+                url: '/lnt-timetracker/event-select',
+//                url: '/lnt-timetracker/event-drop',
                 type: 'get',
                 data: {
                     id : event.id,
@@ -268,34 +227,126 @@ $(document).ready(function() {
                     allDay: event.allDay,
                     title: event.title,
                     popcontent: event.popcontent,
-                    color: ecolor,
+                    color: ecolor
                 },
                 success: function ( data, textStatus, jqXHR ) {
-                    console.log(data);
+                    $('#calendar').fullCalendar( 'refetchEvents' ); //
+                    
                 },
                 error:function ( jqXHR, textStatus, errorThrown ) {
-                    console.log('jqXHR: '+ jqXHR);
-                    console.log('textStatus: '+ textStatus);
-                    console.log('errorThrown: '+ errorThrown);
                 }
             });
 
-                var eventClone = {
-                    id : 'event_' + event.id,
-                    title: '' + event.title,
-                    popcontent: event.popcontent,
-                    start: event.start,
-                    end: event.end,
-                    resourceId: event.resourceId,
-                    color: ecolor,
-                    textColor: 'black'
-                };
-             // Render new event with new event object
-             $('#calendar').fullCalendar('renderEvent', eventClone, true);
-
              // Revert the changes in parent event. To move it back to original position
-             event.color = 'LightGray'
+             event.color = 'LightGray',
              revertFunc();
         }
     });
+    
+
 });
+
+$('#timetrackerModal').on('shown.bs.modal', function() {
+    console.log("modal shown");
+    $("#event_delete").click(eventDelete);
+    $("#event_edit").unbind("click").click(eventEdit);
+});
+function eventSave (){
+    console.log('eventSave() run');
+        var form = $('#dv44v34rv4');
+//        // return false if form still have some validation errors
+        if (form.find('.has-error').length) 
+        {
+            console.log('has errors');
+            return false;
+        }
+        console.log('has no errors');
+        console.log('action: ' + form.attr('action'));
+        // submit form
+        $.ajax({
+            url    : form.attr('action'),
+            type   : 'post',
+            data   : form.serialize(),
+            success: function (response) 
+            {
+                console.log('success post');
+                $('#calendar').fullCalendar( 'refetchEvents' ); //
+                $('#timetrackerModal').modal('hide');
+            },
+            error  : function () 
+            {
+                console.log('internal server error');
+            }
+        });
+        return false;
+}
+    
+function eventEdit (){
+    var edit_id = $("#event_edit").attr( "data-event-id" );
+    $( '.modal-content' ).load( '/lnt-timetracker/event-edit&'+$.param({id: edit_id}),function( response, status, xhr ) {
+        if (status == 'success') {
+            console.log('eventEdit success');
+            // add listener to new button
+            $("#event_save").unbind("click").click(eventSave);
+        }
+    });
+}
+    
+function eventDelete(){
+    console.log('id: '+$("#event_delete").attr( "data-event-id" ));
+    var confirm = prompt("Type yes to delete", "no");
+    if (confirm == 'yes') {
+        $.ajax({
+            url: '/lnt-timetracker/event-delete',
+            type: 'get',
+            data: {
+                id : $("#event_delete").attr( "data-event-id" )
+            },
+            success: function ( data, textStatus, jqXHR ) {
+                $('#timetrackerModal').modal('hide');
+                $('#calendar').fullCalendar( 'refetchEvents' ); //
+            },
+            error:function ( jqXHR, textStatus, errorThrown ) {
+                console.log("failed");
+            }
+        });
+    }
+}
+    
+$(document).ajaxSuccess(function() {
+//  alert("An individual AJAX call has completed successfully");
+  $( ".fc-time-area.fc-widget-header .fc-scroller" ).css( "margin-bottom","0" );
+});
+    
+$('.fc-timelineWeek-button').click(function(){
+    $( ".fc-time-area.fc-widget-header .fc-scroller" ).css( "margin-bottom","0" );
+});
+$('.fc-timelineFourDay-button').click(function(){
+    $( ".fc-time-area.fc-widget-header .fc-scroller" ).css( "margin-bottom","0" );
+});
+$('.fc-timelineMonth-button').click(function(){
+    $( ".fc-time-area.fc-widget-header .fc-scroller" ).css( "margin-bottom","0" );
+});
+$('.fc-timelineYear-button').click(function(){
+    $( ".fc-time-area.fc-widget-header .fc-scroller" ).css( "margin-bottom","0" );
+});
+$( "td" ).bind( "change", function() {
+    $( ".fc-time-area.fc-widget-header .fc-scroller" ).css( "margin-bottom","0" );
+});
+
+$(".manufactureBy").on("change",function(){
+    if($(this).is(":checked")) {
+    //             console.log("id="+$(this).val());
+        $.ajax({
+            url: '/lnt-timetracker/resources',
+            type: 'GET',
+            data: {boxx: $(this).val()},
+            success:function(r){
+                // succcess call
+                console.log('ok'); 
+            }
+        })
+    //
+    }
+});
+
