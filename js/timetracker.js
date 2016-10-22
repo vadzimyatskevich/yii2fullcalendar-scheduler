@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
+var scrolled = false;
 /* http://stackoverflow.com/questions/9600295/automatically-change-text-color-to-assure-readability */
     function randomColor() {
 //        var color;
@@ -12,7 +12,7 @@
 //        color = ("000000" + color).slice(-6); // pad with leading zeros
 //        color = "#" + color; // prepend #
 //        return color;
-        return '#A9F5BC';
+        return '#00ff99';
     }
     
 $(document).ready(function() {
@@ -25,27 +25,31 @@ $(document).ready(function() {
         scrollTime: '00:00', // undo default 6am scrollTime
         nowIndicator: true,
         customButtons: {
-        allcountryButton: {
-            text: 'Все страны',
-            click: function() {
-//              
-document.cookie = "allc=1";
+            allcountryButton: {
+                text: 'Все страны',
+                click: function() {
+                    document.cookie = "allc=1";
+                    location.reload();
+                }
+            },
+            foreigncountryButton: {
+                text: 'моя страна',
+                click: function() {
+    //              
+                    document.cookie = "allc=0";
 
-location.reload();
-          }
+                    location.reload();
+                }
+            },
+            centerButton: {
+                text: '> <',
+                click: function() {
+                    $('.fc-scroller').animate({ scrollLeft: $('td[data-date="'+moment().add(-5, 'days').format("YYYY-MM-DD")+'"]').position().left }, 1000);
+                }
+            }
         },
-        foreigncountryButton: {
-            text: 'моя страна',
-            click: function() {
-//              
-document.cookie = "allc=0";
-
-location.reload();
-          }
-        },
-    },
         header: {
-                left: 'today prevYear,prev,next,nextYear allcountryButton,foreigncountryButton',
+                left: 'today prevYear,prev,next,nextYear allcountryButton,foreigncountryButton centerButton',
                 center: 'title',
                 right: 'timelineDays,timelineMonth,timelineYear'
         },
@@ -56,8 +60,8 @@ location.reload();
                 slotLabelInterval: { days:1 }
             },
         },
-        defaultView: 'timelineMonth',
-        resourceLabelText: 'Техники',
+        defaultView: 'timelineYear',
+        resourceLabelText: ' ',
         resourceGroupField: 'region',
         businessHours: {
 
@@ -102,6 +106,7 @@ location.reload();
                             $('#calendar').fullCalendar( 'refetchEvents' ); //
                         },
                         error:function ( jqXHR, textStatus, errorThrown ) {
+                            alert(errorThrown);
                         }
                     });
 
@@ -123,7 +128,7 @@ location.reload();
 //                url: '/lnt-timetracker/orders',
                 type: 'GET',
                 error: function( jqXHR, textStatus, errorThrown) {
-                    alert(jqXHR+textStatus+errorThrown);
+                    alert(errorThrown);
                 }
             },
             {
@@ -131,7 +136,7 @@ location.reload();
 //                url: '/lnt-timetracker/events',
                 type: 'GET',
                 error: function( jqXHR, textStatus, errorThrown) {
-                    alert(jqXHR+textStatus+errorThrown);
+                    alert(errorThrown);
                 }
             }
 
@@ -146,6 +151,8 @@ location.reload();
                     $('#timetrackerModal').modal('show').draggable({
                         handle: ".modal-header"
                     });
+                } else {
+                    alert(response);
                 }
             });
             return;
@@ -165,6 +172,7 @@ location.reload();
                 success: function ( data, textStatus, jqXHR ) {
                 },
                 error:function ( jqXHR, textStatus, errorThrown ) {
+                    alert(errorThrown);
                     revertFunc();
                 }
             });
@@ -205,6 +213,7 @@ location.reload();
                     success: function ( data, textStatus, jqXHR ) {
                     },
                     error:function ( jqXHR, textStatus, errorThrown ) {
+                        alert(errorThrown);
                         revertFunc();
                     }
                 });
@@ -240,6 +249,22 @@ location.reload();
              // Revert the changes in parent event. To move it back to original position
              event.color = 'LightGray',
              revertFunc();
+        },
+        eventAfterAllRender: function(event, element, view) { 
+            //element.append(event.title); 
+            $( ".fc-time-area.fc-widget-header .fc-scroller" ).css( "margin-bottom","0" );
+            $( "#calendar .fc-sun" ).css( "background","#f2b6b0" ); //"#f71d1d" 
+            $( "#calendar .fc-sat" ).css( "background","#c9c9c9" ); //"#f9d6d6" 
+            $( "#calendar .fc-past" ).css( "background-color","#f7f5f4" );
+//            $('#calendar').fullCalendar( 'gotoDate', 2016 [ 9 [ 20 ]] );
+            console.log(scrolled);
+            if (scrolled === false){
+                scrolled = true;
+                $('.fc-scroller').scrollLeft(0).scrollLeft(
+                        $('th[data-date="'+moment().format("YYYY-MM-DD")+'"]')
+                        .last().offset().left-screen.width/2);
+            }
+            //alert('Все события загружены -eventAfterAllRender:- работает');
         }
     });
     
@@ -283,7 +308,7 @@ function eventSave (){
     
 function eventEdit (){
     var edit_id = $("#event_edit").attr( "data-event-id" );
-    $( '.modal-content' ).load( '/lnt-timetracker/event-edit&'+$.param({id: edit_id}),function( response, status, xhr ) {
+    $( '.modal-content' ).load( '/lnt-timetracker/event-edit?'+$.param({id: edit_id}),function( response, status, xhr ) {
         if (status == 'success') {
             console.log('eventEdit success');
             // add listener to new button
@@ -307,32 +332,12 @@ function eventDelete(){
                 $('#calendar').fullCalendar( 'refetchEvents' ); //
             },
             error:function ( jqXHR, textStatus, errorThrown ) {
-                console.log("failed");
+                alert(errorThrown);
+//                console.log("failed");
             }
         });
     }
 }
-    
-$(document).ajaxSuccess(function() {
-//  alert("An individual AJAX call has completed successfully");
-  $( ".fc-time-area.fc-widget-header .fc-scroller" ).css( "margin-bottom","0" );
-});
-    
-$('.fc-timelineWeek-button').click(function(){
-    $( ".fc-time-area.fc-widget-header .fc-scroller" ).css( "margin-bottom","0" );
-});
-$('.fc-timelineFourDay-button').click(function(){
-    $( ".fc-time-area.fc-widget-header .fc-scroller" ).css( "margin-bottom","0" );
-});
-$('.fc-timelineMonth-button').click(function(){
-    $( ".fc-time-area.fc-widget-header .fc-scroller" ).css( "margin-bottom","0" );
-});
-$('.fc-timelineYear-button').click(function(){
-    $( ".fc-time-area.fc-widget-header .fc-scroller" ).css( "margin-bottom","0" );
-});
-$( "td" ).bind( "change", function() {
-    $( ".fc-time-area.fc-widget-header .fc-scroller" ).css( "margin-bottom","0" );
-});
 
 $(".manufactureBy").on("change",function(){
     if($(this).is(":checked")) {
